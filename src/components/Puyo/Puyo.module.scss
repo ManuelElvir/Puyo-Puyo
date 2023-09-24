@@ -1,0 +1,25 @@
+.puyo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  text-transform: uppercase;
+  position: absolute;
+  &.a{
+    background-color: rgb(235, 80, 56);
+  }
+  &.b{
+    background-color: rgb(36, 113, 255);
+  }
+  &.c{
+    background-color: rgb(0, 238, 0);
+  }
+  &.d{
+    background-color: rgb(251, 255, 33);
+  }
+}
