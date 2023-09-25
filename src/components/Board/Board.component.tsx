@@ -39,7 +39,6 @@ const Board = ({ speed = 1, difficulty = 'medium' }: BoardProps) => {
         let lastId = 0
         if (prev.length > 1) {
           lastId = parseInt(prev[1].id.replace(`${boardId}_`, ''));
-          console.log('lastId', lastId);
         }
         return [
           { id: `${boardId}_${lastId + 1}`, type: randomColor(), pos: pos1 },
@@ -113,7 +112,6 @@ const Board = ({ speed = 1, difficulty = 'medium' }: BoardProps) => {
     }
     setCurrentPuyos([...nexCurrentPuyos])
     if (!CanContinueFalling(nexCurrentPuyos)) {
-      console.log('gameOver', gameOver);
       if(!gameOver) {
         addNewPuyos()
       }
@@ -144,8 +142,6 @@ const Board = ({ speed = 1, difficulty = 'medium' }: BoardProps) => {
     }
     setCurrentPuyos(nexCurrentPuyos)
     if (!CanContinueFalling(nexCurrentPuyos)) {
-      console.log('gameOver', gameOver);
-      
       if(!gameOver) {
         addNewPuyos()
       }
