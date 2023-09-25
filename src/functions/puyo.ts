@@ -1,6 +1,6 @@
 import { POS, PUYO } from "../types/puyo";
 
-export const calculateScore = (puyos: PUYO[], setPuyos: (puyos: PUYO[]) => void): number => {
+export const calculateScore = (puyos: PUYO[]) => {
     let score = 0;
 
     const ROWS = 12;
@@ -82,10 +82,21 @@ export const calculateScore = (puyos: PUYO[], setPuyos: (puyos: PUYO[]) => void)
         }
     }
 
-
-    setPuyos(puyos)
-    return score;
+    return {nextPuyos: puyos, nextScore: score};
 };
+
+export const canContinuePlaying = (puyos: PUYO[], pos1: POS, pos2: POS) => {
+    console.log('nextPuyos', puyos)
+    const puyosAtIndex0 = puyos.findIndex(puyo => 
+        (puyo.pos.y === 0 && pos1.x === puyo.pos.x) ||
+        (puyo.pos.y === 0 && pos2.x === puyo.pos.x) ||
+        (puyo.pos.y < 0)
+    )
+    console.log('puyosAtIndex0', puyosAtIndex0)
+
+    if(puyosAtIndex0==-1) return true;
+    return false
+}
 
 export const randomColor = () => {
     // you can add more colors depending on the current difficulty

@@ -4,7 +4,7 @@ import styles from "./Board.module.scss";
 import Puyo from "../Puyo";
 import PuyoBlock from "../PuyoBlock";
 import { PUYO } from "../../types/puyo";
-import { randomPosition, randomPosition2, calculateScore, randomColor } from "../../functions/puyo";
+import { randomPosition, randomPosition2, calculateScore, randomColor, canContinuePlaying } from "../../functions/puyo";
 
 
 interface BoardProps {
@@ -13,43 +13,52 @@ interface BoardProps {
 }
 
 const Board = ({ speed = 1, difficulty = 'medium' }: BoardProps) => {
+  const [gameOver, setGameOver] = useState(false)
   const [score, setScore] = useState(0);
   const [puyos, setPuyos] = useState<PUYO[]>([]);
   const [currentPuyos, setCurrentPuyos] = useState<PUYO[]>([]);
   const boardId = useId()
 
-  useEffect(() => {
-    addNewPuyos()
-  }, [])
-
-  
 
   const addNewPuyos = useCallback(() => {
 
-    const newScore =  calculateScore([...puyos, ...currentPuyos], setPuyos)
-    console.log('newScore', newScore);
+    const {nextScore, nextPuyos} =  calculateScore([...puyos, ...currentPuyos])
     
-    setScore(prev => prev+newScore)
+    setScore(prev => prev+nextScore)
+    setPuyos(nextPuyos)
 
     // setPuyos((prevPuyos) => {
     //   return [...prevPuyos, ...currentPuyos];
     // });
-
+    
     const pos1 = randomPosition()
     const pos2 = randomPosition2(pos1)
 
-    setCurrentPuyos(prev => {
-      let lastId = 0
-      if (prev.length > 1) {
-        lastId = parseInt(prev[1].id.replace(`${boardId}_`, ''));
-        console.log('lastId', lastId);
-      }
-      return [
-        { id: `${boardId}_${lastId + 1}`, type: randomColor(), pos: pos1 },
-        { id: `${boardId}_${lastId + 2}`, type: randomColor(), pos: pos2 },
-      ]
-    })
+    if(canContinuePlaying(nextPuyos, pos1, pos2)){
+      setCurrentPuyos(prev => {
+        let lastId = 0
+        if (prev.length > 1) {
+          lastId = parseInt(prev[1].id.replace(`${boardId}_`, ''));
+          console.log('lastId', lastId);
+        }
+        return [
+          { id: `${boardId}_${lastId + 1}`, type: randomColor(), pos: pos1 },
+          { id: `${boardId}_${lastId + 2}`, type: randomColor(), pos: pos2 },
+        ]
+      })
+    }
+    else {
+      setGameOver(true)
+      alert("Jeux terminé! score : " + nextScore)
+    }
+    
   }, [boardId, currentPuyos, puyos]);
+
+
+  useEffect(() => {
+    addNewPuyos()
+  }, [])
+  
 
   const getDeepestAvailablePosition = useCallback((x: number) => {
     const posY = puyos.filter(item => item.pos.x === x).reduce(function (lastDeepestPosition, currentItem) {
@@ -88,6 +97,7 @@ const Board = ({ speed = 1, difficulty = 'medium' }: BoardProps) => {
   }, [getDeepestAvailablePosition])
 
   const fallSlowly = useCallback(() => {
+    if(gameOver) return
     const nexCurrentPuyos = [...currentPuyos]
     if (isVertical) {
       nexCurrentPuyos[0].pos.y += 1
@@ -103,11 +113,15 @@ const Board = ({ speed = 1, difficulty = 'medium' }: BoardProps) => {
     }
     setCurrentPuyos([...nexCurrentPuyos])
     if (!CanContinueFalling(nexCurrentPuyos)) {
-      addNewPuyos()
+      console.log('gameOver', gameOver);
+      if(!gameOver) {
+        addNewPuyos()
+      }
     }
-  }, [currentPuyos, CanContinueFalling, addNewPuyos, isVertical, getDeepestAvailablePosition])
+  }, [currentPuyos, CanContinueFalling, addNewPuyos, isVertical, getDeepestAvailablePosition, gameOver])
 
   const fallFast = useCallback(() => {
+    if(gameOver) return
     const nexCurrentPuyos = [...currentPuyos]
     if (isVertical) {
       if (nexCurrentPuyos[0].pos.y > nexCurrentPuyos[1].pos.y) {
@@ -130,9 +144,13 @@ const Board = ({ speed = 1, difficulty = 'medium' }: BoardProps) => {
     }
     setCurrentPuyos(nexCurrentPuyos)
     if (!CanContinueFalling(nexCurrentPuyos)) {
-      addNewPuyos()
+      console.log('gameOver', gameOver);
+      
+      if(!gameOver) {
+        addNewPuyos()
+      }
     }
-  }, [getDeepestAvailablePosition, CanContinueFalling, addNewPuyos, isVertical, currentPuyos])
+  }, [getDeepestAvailablePosition, CanContinueFalling, addNewPuyos, isVertical, currentPuyos, gameOver])
 
   const mouseWheelListener = (e: React.WheelEvent<HTMLDivElement>) => {
     if (e.deltaY < 0) {
@@ -261,7 +279,6 @@ const Board = ({ speed = 1, difficulty = 'medium' }: BoardProps) => {
     }
   }, [goToLeft, goToRight, goToBottom]);
 
-  // capturer l'évènement keyDown du document
   useEffect(() => {
     document.addEventListener("keydown", keydownListener);
     return () => {
