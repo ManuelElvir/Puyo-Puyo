@@ -8,8 +8,10 @@ This is a simple React version of the single-player mode of the game Puyo Puyo (
 ```bash
    # Clone repository
    git clone https://github.com/ManuelElvir/Puyo-Puyo.git
+
    # Install dependecies
    npm i
+
    # Run the project
    npm run dev
 ```
