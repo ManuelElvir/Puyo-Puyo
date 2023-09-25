@@ -48,10 +48,10 @@ const Board = ({ speed = 1, difficulty = 'medium' }: BoardProps) => {
     }
     else {
       setGameOver(true)
-      alert("Jeux terminé! score : " + nextScore)
+      alert("Jeux terminé! score : " +( score+ nextScore))
     }
     
-  }, [boardId, currentPuyos, puyos]);
+  }, [boardId, currentPuyos, puyos, score]);
 
 
   useEffect(() => {
